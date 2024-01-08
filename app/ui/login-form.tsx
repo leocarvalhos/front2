@@ -17,30 +17,29 @@ import UserForm from '../data/@types/userForm';
 
 export default function LoginForm() {
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
-  const [userForm, setUserForm] = useState<UserForm | any>()
+  const [userForm, setUserForm] = useState<UserForm | any>();
 
   function handleInputForm(event: any) {
-    setUserForm({ ...userForm, [event.target.name]: event.target.value })
+    setUserForm({ ...userForm, [event.target.name]: event.target.value });
   }
   async function handleLogin(event: any) {
-    event.preventDefault()
+    event.preventDefault();
     try {
-      const { data } = await postUserForm(userForm)
-      console.log(data)
+      const { data } = await postUserForm(userForm);
+      console.log(data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
   return (
-    <form action={dispatch} className="space-y-3" onSubmit={handleLogin}>
+    <form action={dispatch} className="space-y-3">
       <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
         <h1 className={`${lusitana.className} mb-3 text-2xl`}>
           Faça o login para continuar.
         </h1>
         <div className="w-full">
           <div>
-
             <label
               className="mb-3 mt-5 block text-xs font-medium text-gray-900"
               htmlFor="username"
@@ -76,13 +75,12 @@ export default function LoginForm() {
                 placeholder="Dígite sua senha"
                 onChange={handleInputForm}
                 required
-                minLength={6}
               />
               <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
           </div>
         </div>
-        <Button className="mt-4 w-full" type='submit'>
+        <Button className="mt-4 w-full" type="submit">
           Entrar <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
         </Button>
         <div
@@ -101,4 +99,3 @@ export default function LoginForm() {
     </form>
   );
 }
-

@@ -1,6 +1,7 @@
 import type { NextAuthConfig } from 'next-auth';
 
 export const authConfig = {
+  secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: '/login',
   },
@@ -11,10 +12,10 @@ export const authConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
+      const isOnDashboard = nextUrl.pathname.startsWith('/dashboard'); // Tudo que estiver dentro de dashboard é rota protegida
       if (isOnDashboard) {
         if (isLoggedIn) return true;
-        return false; // Redirect unauthenticated users to login page
+        return false; // Redireciona para a página de login
       } else if (isLoggedIn) {
         return Response.redirect(new URL('/dashboard', nextUrl));
       }

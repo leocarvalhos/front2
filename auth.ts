@@ -1,41 +1,33 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import bcrypt from 'bcrypt';
-import { sql } from '@vercel/postgres';
-import { z } from 'zod';
-import type { User } from '@/app/lib/definitions';
 import { authConfig } from './auth.config';
-
-async function getUser(email: string): Promise<User | undefined> {
-  try {
-    const user = await sql<User>`SELECT * FROM users WHERE email=${email}`;
-    return user.rows[0];
-  } catch (error) {
-    console.error('Failed to fetch user:', error);
-    throw new Error('Failed to fetch user.');
-  }
-}
 
 export const { auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
     Credentials({
-      async authorize(credentials) {
-        const parsedCredentials = z
-          .object({ username: z.string(), password: z.string().min(6) })
-          .safeParse(credentials);
+      credentials: {
+        username: { label: 'username', type: 'text' },
+        password: { label: 'password', type: 'password' },
+      },
+      async authorize(credentials, req) {
+        const response = await fetch('http://localhost:3001/users/login', {
+          method: 'POST',
+          headers: {
+            'Content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: credentials?.username,
+            password: credentials?.password,
+          }),
+        });
 
-        if (parsedCredentials.success) {
-          const { username, password } = parsedCredentials.data;
+        const user = await response.json();
 
-          const user = await getUser(username);
-          if (!user) return null;
-
-          const passwordsMatch = await bcrypt.compare(password, user.password);
-          if (passwordsMatch) return user;
+        if (user && response.ok) {
+          return user;
         }
 
-        console.log('Invalid credentials');
         return null;
       },
     }),
